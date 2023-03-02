@@ -27,6 +27,7 @@ func (d *driver) Run() {
 		s source
 		c dnsClient
 		i inspector
+		h errorHandler
 	)
 
 	for _, s = range d.config.Sources() {
@@ -39,6 +40,10 @@ func (d *driver) Run() {
 
 	for _, i = range d.config.Inspectors() {
 		go d.driveInspector(i)
+	}
+
+	for _, h = range d.config.ErrorHandlers() {
+		go d.driveErrorHandler(h)
 	}
 }
 
@@ -94,6 +99,18 @@ func (d *driver) driveInspector(i inspector) {
 
 		default:
 			i.Inspect(<-d.responses)
+		}
+	}
+}
+
+func (d *driver) driveErrorHandler(h errorHandler) {
+	for {
+		select {
+		case <-d.stop:
+			return
+
+		default:
+			h.Handle(<-d.errors)
 		}
 	}
 }

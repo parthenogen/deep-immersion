@@ -5,4 +5,5 @@ type config interface {
 	Sources() []source
 	DNSClients() []dnsClient
 	Inspectors() []inspector
+	ErrorHandlers() []errorHandler
 }
