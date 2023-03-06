@@ -78,6 +78,7 @@ func (c *maxBeatsPerSecConductor) run() {
 
 			if c.nBeats%c.logInterval == 0 {
 				log.Info().
+					Caller().
 					Uint(c.actualBPSLogLabel,
 						uint(
 							float64(c.nBeats)/float64(t.Sub(c.tStart))*
