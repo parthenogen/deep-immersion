@@ -48,7 +48,7 @@ func (d *driver) Run() {
 }
 
 func (d *driver) Stop() {
-	d.stop <- struct{}{}
+	close(d.stop)
 
 	return
 }
