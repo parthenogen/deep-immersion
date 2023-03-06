@@ -7,45 +7,45 @@ import (
 func TestStopIfTruncatedInspector(t *testing.T) {
 	var (
 		inspector *stopIfTruncatedInspector
-		mock      mockStoppable
-		dummy     dummyResponse
+		spy       spyStoppable
+		stub      stubResponse
 	)
 
-	inspector = NewStopIfTruncatedInspector(&mock)
+	inspector = NewStopIfTruncatedInspector(&spy)
 
-	if mock.stopped {
+	if spy.stopped {
 		t.Fail()
 	}
 
-	inspector.Inspect(&dummy)
+	inspector.Inspect(&stub)
 
-	if mock.stopped {
+	if spy.stopped {
 		t.Fail()
 	}
 
-	dummy.truncated = true
+	stub.truncated = true
 
-	inspector.Inspect(&dummy)
+	inspector.Inspect(&stub)
 
-	if !mock.stopped {
+	if !spy.stopped {
 		t.Fail()
 	}
 }
 
-type mockStoppable struct {
+type spyStoppable struct {
 	stopped bool
 }
 
-func (s *mockStoppable) Stop() {
+func (s *spyStoppable) Stop() {
 	s.stopped = true
 
 	return
 }
 
-type dummyResponse struct {
+type stubResponse struct {
 	truncated bool
 }
 
-func (r *dummyResponse) Truncated() bool {
+func (r *stubResponse) Truncated() bool {
 	return r.truncated
 }
