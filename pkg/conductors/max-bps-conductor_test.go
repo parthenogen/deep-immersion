@@ -11,9 +11,9 @@ import (
 
 func TestMaxBeatsPerSecConductor(t *testing.T) {
 	const (
-		maxBPS      = 4096
-		logInterval = 256
-		logLabel    = "actualQPS"
+		maxBPS      = 131072
+		logInterval = 8192
+		logLabel    = "QPS"
 	)
 
 	var (
