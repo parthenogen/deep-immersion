@@ -5,6 +5,9 @@ import (
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func TestExitingErrorHandler(t *testing.T) {
@@ -26,6 +29,8 @@ func TestExitingErrorHandler(t *testing.T) {
 		ok      bool
 	)
 
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
 	if os.Getenv(envKey) == envValue {
 		handler = NewExitingErrorHandler()
 
@@ -37,6 +42,8 @@ func TestExitingErrorHandler(t *testing.T) {
 	command = exec.Command(os.Args[0],
 		argument,
 	)
+
+	command.Stderr = os.Stderr
 
 	command.Env = append(os.Environ(),
 		fmt.Sprintf(envFormat, envKey, envValue),

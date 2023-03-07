@@ -1,6 +1,8 @@
 package inspectors
 
 import (
+	"github.com/rs/zerolog/log"
+
 	"github.com/parthenogen/deep-immersion/pkg/dimm"
 )
 
@@ -22,6 +24,10 @@ func NewStopIfTruncatedInspector(s stoppable) (i *stopIfTruncatedInspector) {
 
 func (i *stopIfTruncatedInspector) Inspect(response dimm.Response) {
 	if response.Truncated() {
+		log.Info().
+			Caller().
+			Msg("Truncated response observed. Stopping now.")
+
 		i.stoppable.Stop()
 	}
 

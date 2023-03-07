@@ -1,7 +1,11 @@
 package inspectors
 
 import (
+	"os"
 	"testing"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func TestStopIfTruncatedInspector(t *testing.T) {
@@ -10,6 +14,8 @@ func TestStopIfTruncatedInspector(t *testing.T) {
 		spy       spyStoppable
 		stub      stubResponse
 	)
+
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
 	inspector = NewStopIfTruncatedInspector(&spy)
 
