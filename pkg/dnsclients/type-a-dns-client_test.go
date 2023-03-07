@@ -9,7 +9,7 @@ import (
 	"github.com/parthenogen/deep-immersion/pkg/dnsservers"
 )
 
-func TestARecordDNSClient(t *testing.T) {
+func TestTypeADNSClient(t *testing.T) {
 	const (
 		domainName = "example.org."
 		clientAddr = "127.171.180.45:35353"
@@ -17,7 +17,7 @@ func TestARecordDNSClient(t *testing.T) {
 	)
 
 	var (
-		client   *aRecordDNSClient
+		client   *typeADNSClient
 		server   stoppable
 		query    *stubQuery
 		response dimm.Response
@@ -35,7 +35,7 @@ func TestARecordDNSClient(t *testing.T) {
 
 	defer server.Stop()
 
-	client, e = NewARecordDNSClient(
+	client, e = NewTypeADNSClient(
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(clientAddr)),
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
 	)

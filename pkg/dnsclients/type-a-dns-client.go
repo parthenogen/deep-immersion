@@ -8,15 +8,15 @@ import (
 	"github.com/parthenogen/deep-immersion/pkg/dimm"
 )
 
-type aRecordDNSClient struct {
+type typeADNSClient struct {
 	client        *dns.Client
 	serverUDPAddr string
 }
 
-func NewARecordDNSClient(clientAddr, serverAddr *net.UDPAddr) (
-	c *aRecordDNSClient, e error,
+func NewTypeADNSClient(clientAddr, serverAddr *net.UDPAddr) (
+	c *typeADNSClient, e error,
 ) {
-	c = &aRecordDNSClient{
+	c = &typeADNSClient{
 		client: &dns.Client{
 			Dialer: &net.Dialer{
 				LocalAddr: clientAddr,
@@ -28,7 +28,7 @@ func NewARecordDNSClient(clientAddr, serverAddr *net.UDPAddr) (
 	return
 }
 
-func (c *aRecordDNSClient) Send(query dimm.Query) (r dimm.Response, e error) {
+func (c *typeADNSClient) Send(query dimm.Query) (r dimm.Response, e error) {
 	var (
 		outgoing *dns.Msg = new(dns.Msg)
 		incoming *dns.Msg
