@@ -39,8 +39,8 @@ func NewMaxBeatsPerSecConductor(
 	return
 }
 
-func (c *maxBeatsPerSecConductor) Beats() chan struct{} {
-	return c.beats
+func (c *maxBeatsPerSecConductor) Beats() <-chan struct{} {
+	return (<-chan struct{})(c.beats)
 }
 
 func (c *maxBeatsPerSecConductor) Stop() {
