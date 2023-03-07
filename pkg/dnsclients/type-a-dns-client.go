@@ -57,10 +57,7 @@ func (c *typeADNSClient) Send(query dimm.Query) (r dimm.Response, e error) {
 			Caller().
 			Uint("counter", c.counter).
 			Str("query.name", outgoing.Question[0].Name).
-			Bool("response.truncated", incoming.MsgHdr.Truncated). // XXX *
 			Msg("Query sent; response received.")
-
-		// * highly specific
 	}
 
 	return
