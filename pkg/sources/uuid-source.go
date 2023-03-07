@@ -20,7 +20,7 @@ func NewUUIDSource(domain string) (s *uuidSource) {
 
 func (s *uuidSource) GenerateFQDN() (fqdn string) {
 	const (
-		format = "%s.%s."
+		format = "%s.%s"
 	)
 
 	fqdn = fmt.Sprintf(format,

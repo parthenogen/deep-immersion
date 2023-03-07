@@ -26,8 +26,8 @@ func TestGenerateUUID(t *testing.T) {
 
 func TestUUIDSourceGenerateFQDN(t *testing.T) {
 	const (
-		domain  = "example.org"
-		pattern = uuidPattern + `\.` + domain + `\.`
+		domain  = "example.org."
+		pattern = uuidPattern + `\.` + domain
 	)
 
 	var (
