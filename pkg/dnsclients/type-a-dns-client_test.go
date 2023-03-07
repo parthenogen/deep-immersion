@@ -14,6 +14,8 @@ func TestTypeADNSClient(t *testing.T) {
 		domainName = "example.org."
 		clientAddr = "127.171.180.45:35353"
 		serverAddr = "127.29.170.213:5353"
+
+		truncateAfter = 0
 	)
 
 	var (
@@ -28,6 +30,7 @@ func TestTypeADNSClient(t *testing.T) {
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
 		clientAddr,
 		domainName,
+		truncateAfter,
 	)
 	if e != nil {
 		t.Error(e)

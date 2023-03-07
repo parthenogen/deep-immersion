@@ -18,10 +18,12 @@ type mockDNSServer struct {
 
 	expectedClientAddr string
 	expectedDomainName string
+	truncateAfterQuery uint
 }
 
 func NewMockDNSServer(
 	address *net.UDPAddr, expectedClientAddr, expectedDomainName string,
+	truncateAfterQuery uint,
 ) (
 	s *mockDNSServer, e error,
 ) {
@@ -35,6 +37,7 @@ func NewMockDNSServer(
 		stop:               make(chan struct{}),
 		expectedClientAddr: expectedClientAddr,
 		expectedDomainName: expectedDomainName,
+		truncateAfterQuery: truncateAfterQuery,
 	}
 
 	s.udpConn, e = net.ListenUDP(network, address)
@@ -119,6 +122,8 @@ func (s *mockDNSServer) runHandler() {
 
 		clientAddrOK bool
 		domainNameOK bool
+
+		queriesHandled uint
 	)
 
 	for {
@@ -137,12 +142,16 @@ func (s *mockDNSServer) runHandler() {
 			if clientAddrOK && domainNameOK {
 				outgoing.Header.ID = incoming.Header.ID
 
-				outgoing.Header.Truncated = true
+				if queriesHandled >= s.truncateAfterQuery {
+					outgoing.Header.Truncated = true
+				}
 			}
 
 			outgoing.client = incoming.client
 
 			s.outgoing <- outgoing
+
+			queriesHandled += 1
 		}
 	}
 }
