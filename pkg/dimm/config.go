@@ -1,9 +1,9 @@
 package dimm
 
 type config interface {
-	Conductor() conductor
-	Sources() []source
-	DNSClients() []dnsClient
-	Inspectors() []inspector
-	ErrorHandlers() []errorHandler
+	Conductor() Conductor
+	Sources() []Source
+	DNSClients() []DNSClient
+	Inspectors() []Inspector
+	ErrorHandlers() []ErrorHandler
 }

@@ -1,5 +1,5 @@
 package dimm
 
-type inspector interface {
+type Inspector interface {
 	Inspect(Response)
 }

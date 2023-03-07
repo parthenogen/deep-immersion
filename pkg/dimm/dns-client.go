@@ -1,5 +1,5 @@
 package dimm
 
-type dnsClient interface {
+type DNSClient interface {
 	Send(Query) (Response, error)
 }

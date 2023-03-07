@@ -1,5 +1,5 @@
 package dimm
 
-type source interface {
+type Source interface {
 	GenerateFQDN() string
 }

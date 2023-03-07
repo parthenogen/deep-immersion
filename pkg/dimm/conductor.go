@@ -1,5 +1,5 @@
 package dimm
 
-type conductor interface {
+type Conductor interface {
 	Beats() <-chan struct{}
 }

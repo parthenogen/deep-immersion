@@ -24,10 +24,10 @@ func NewDriver(c config) (d *driver) {
 
 func (d *driver) Run() {
 	var (
-		s source
-		c dnsClient
-		i inspector
-		h errorHandler
+		s Source
+		c DNSClient
+		i Inspector
+		h ErrorHandler
 	)
 
 	for _, s = range d.config.Sources() {
@@ -53,7 +53,7 @@ func (d *driver) Stop() {
 	return
 }
 
-func (d *driver) driveSource(s source) {
+func (d *driver) driveSource(s Source) {
 	for {
 		select {
 		case <-d.stop:
@@ -67,7 +67,7 @@ func (d *driver) driveSource(s source) {
 	}
 }
 
-func (d *driver) driveDNSClient(client dnsClient) {
+func (d *driver) driveDNSClient(client DNSClient) {
 	var (
 		response Response
 		e        error
@@ -91,7 +91,7 @@ func (d *driver) driveDNSClient(client dnsClient) {
 	}
 }
 
-func (d *driver) driveInspector(i inspector) {
+func (d *driver) driveInspector(i Inspector) {
 	for {
 		select {
 		case <-d.stop:
@@ -103,7 +103,7 @@ func (d *driver) driveInspector(i inspector) {
 	}
 }
 
-func (d *driver) driveErrorHandler(h errorHandler) {
+func (d *driver) driveErrorHandler(h ErrorHandler) {
 	for {
 		select {
 		case <-d.stop:

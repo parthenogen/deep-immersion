@@ -1,5 +1,5 @@
 package dimm
 
-type errorHandler interface {
+type ErrorHandler interface {
 	Handle(error)
 }
