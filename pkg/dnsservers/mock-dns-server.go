@@ -2,6 +2,7 @@ package dnsservers
 
 import (
 	"net"
+	"strings"
 
 	"golang.org/x/net/dns/dnsmessage"
 )
@@ -136,8 +137,10 @@ func (s *mockDNSServer) runHandler() {
 
 			clientAddrOK = (incoming.client.String() == s.expectedClientAddr)
 
-			domainNameOK = (incoming.Questions[0].Name.String() ==
-				s.expectedDomainName)
+			domainNameOK = strings.HasSuffix(
+				incoming.Questions[0].Name.String(),
+				s.expectedDomainName,
+			)
 
 			if clientAddrOK && domainNameOK {
 				outgoing.Header.ID = incoming.Header.ID
