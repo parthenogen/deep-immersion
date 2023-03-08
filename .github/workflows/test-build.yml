@@ -1,6 +1,9 @@
 name: Test and Build
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - README
 
 jobs:
   test-build:

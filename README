@@ -1,0 +1,68 @@
+Deep Immersion is a library formalising a framework for simulating
+denial-of-service (DoS) attacks against the Domain Name System (DNS), for the
+express purpose of testing security features of highly performant and
+abuse-aware DNS servers.
+
+WARNING: Abuse, misuse, or incompetent use of the contents of this repository
+may result in practical and legal consequences. Please ensure that proper
+authorisation and containment are in place before installation and execution.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The library defines the components of such an attack simulator. These are:
+  * "Sources" for generating domain names;
+  * "DNS clients" for exchanging queries and responses with the DNS server
+    under test, for each of those domain names;
+  * "Inspectors" for evaluating those responses;
+  * "Error handlers" for handling any errors encountered by those clients;
+  * A "conductor" for controlling the rate and timing of those queries; and
+
+A "driver" facilitates the flow of information between the components and
+coordinates their concurrent execution. Multiple instances of the same type of
+components can run in parallel if the driver is so configured.
+
+From the perspective of the driver, all components are swappable. Various
+components can therefore be written and the driver accordingly configured to
+suit specific testing needs as long as those components conform to interface
+definitions. It follows that many variants of Deep Immersion could emerge from
+the combination of compatible components.
+
+A minimal sample of the components can be found in their respective packages
+with accompanying unit tests. More components could be added to those packages,
+although implementers are free to import compliant components from elsewhere.
+
+Besides the library, this repository also contains an initial variant of Deep
+Immersion in the form of a command-line tool tailored to simulate pseudo-random
+subdomain (PRSD) attacks on a server designed to respond to such attacks with
+truncated responses. This particular implementation makes use of a "source"
+generating many subdomains of a given domain, an "inspector" to conclude the
+test upon detection of truncation, and a "conductor" to measure and throttle
+the number of queries per second.
+
+It provides the following options, with the default target server address set
+to a safe default on the local host:
+
+-client-addr string
+  UDP host:port from which queries would be sent (default "127.37.98.54:35353")
+-dns-clients uint
+  Number of concurrent DNS clients to initialise (default 1)
+-domain string
+  Domain for which sub-domains would be generated (default "example.org.")
+-error-handlers uint
+  Number of error handlers to initialise (default 1)
+-inspectors uint
+  Number of response inspectors to initialise (default 1)
+-log-interval uint
+  Some k, such that every k-th event is logged (default 4096)
+-max-qps uint
+  Upper limit to number of queries per second (default 65536)
+-server-addr string
+  UDP host:port to which queries would be sent (default "127.46.140.94:5353")
+-sources uint
+  Number of sub-domain generators to initialise (default 1)
