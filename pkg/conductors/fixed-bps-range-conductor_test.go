@@ -11,8 +11,8 @@ import (
 
 func TestFixedBPSRangeConductor(t *testing.T) {
 	const (
-		minBPS      = 1 << 14
-		maxBPS      = 1 << 16
+		minBPS      = 1 << 6
+		maxBPS      = 1 << 8
 		logInterval = 100 * time.Millisecond
 		logLabel    = "qps"
 	)
