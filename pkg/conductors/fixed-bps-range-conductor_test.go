@@ -9,22 +9,23 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func TestMaxBeatsPerSecConductor(t *testing.T) {
+func TestFixedBPSRangeConductor(t *testing.T) {
 	const (
-		maxBPS      = 131072
-		logInterval = 8192
-		logLabel    = "QPS"
+		minBPS      = 1 << 14
+		maxBPS      = 1 << 16
+		logInterval = 100 * time.Millisecond
+		logLabel    = "qps"
 	)
 
 	var (
-		conductor *maxBeatsPerSecConductor
+		conductor *fixedBPSRangeConductor
 		nBeats    uint
 		nBeatsFin uint
 	)
 
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
-	conductor = NewMaxBeatsPerSecConductor(maxBPS, logInterval, logLabel)
+	conductor = NewFixedBPSRangeConductor(minBPS, maxBPS, logInterval, logLabel)
 
 	go countBeats(
 		&nBeats,
@@ -37,7 +38,7 @@ func TestMaxBeatsPerSecConductor(t *testing.T) {
 
 	nBeatsFin = nBeats
 
-	if nBeatsFin < 1 || nBeatsFin > maxBPS {
+	if nBeatsFin < minBPS || nBeatsFin > maxBPS {
 		t.Fail()
 	}
 
