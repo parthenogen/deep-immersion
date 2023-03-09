@@ -17,13 +17,13 @@ type mockDNSServer struct {
 	outgoing chan message
 	stop     chan struct{}
 
-	expectedClientAddr string
+	expectedClientCIDR *net.IPNet
 	expectedDomainName string
 	truncateAfterQuery uint
 }
 
 func NewMockDNSServer(
-	address *net.UDPAddr, expectedClientAddr, expectedDomainName string,
+	address *net.UDPAddr, expectedClientCIDR, expectedDomainName string,
 	truncateAfterQuery uint,
 ) (
 	s *mockDNSServer, e error,
@@ -36,9 +36,13 @@ func NewMockDNSServer(
 		incoming:           make(chan message),
 		outgoing:           make(chan message),
 		stop:               make(chan struct{}),
-		expectedClientAddr: expectedClientAddr,
 		expectedDomainName: expectedDomainName,
 		truncateAfterQuery: truncateAfterQuery,
+	}
+
+	_, s.expectedClientCIDR, e = net.ParseCIDR(expectedClientCIDR)
+	if e != nil {
+		return
 	}
 
 	s.udpConn, e = net.ListenUDP(network, address)
@@ -135,7 +139,9 @@ func (s *mockDNSServer) runHandler() {
 		default:
 			incoming = <-s.incoming
 
-			clientAddrOK = (incoming.client.String() == s.expectedClientAddr)
+			clientAddrOK = s.expectedClientCIDR.Contains(
+				incoming.client.IP,
+			)
 
 			domainNameOK = strings.HasSuffix(
 				incoming.Questions[0].Name.String(),

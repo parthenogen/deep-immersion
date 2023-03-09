@@ -32,7 +32,7 @@ func TestMain(t *testing.T) {
 
 	server, e = dnsservers.NewMockDNSServer(
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddrDefault)),
-		clientAddrDefault,
+		clientCIDRDefault,
 		domainDefault,
 		minQPSDefault,
 	)

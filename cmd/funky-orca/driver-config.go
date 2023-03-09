@@ -17,7 +17,7 @@ const (
 	minQPSDefault     = 1 << 14
 	maxQPSDefault     = 1 << 16
 	domainDefault     = "example.org."
-	clientAddrDefault = "127.37.98.54:35353"
+	clientCIDRDefault = "127.0.0.0/8"
 	serverAddrDefault = "127.46.140.94:5353"
 )
 
@@ -55,8 +55,9 @@ func newDriverConfig() (c *driverConfig, e error) {
 		nDNSClientsDefault = 1
 		nDNSClientsUsage   = "Number of concurrent DNS clients to initialise"
 
-		clientAddrFlag  = "client-addr"
-		clientAddrUsage = "UDP host:port from which queries would be sent"
+		clientAddrFlag    = "client-addr"
+		clientAddrDefault = "127.37.98.54:35353"
+		clientAddrUsage   = "UDP host:port from which queries would be sent"
 
 		serverAddrFlag  = "server-addr"
 		serverAddrUsage = "UDP host:port to which queries would be sent"

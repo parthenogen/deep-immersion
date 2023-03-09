@@ -12,6 +12,7 @@ import (
 func TestTypeADNSClient(t *testing.T) {
 	const (
 		domainName = "example.org."
+		clientCIDR = "127.0.0.0/8"
 		clientAddr = "127.171.180.45:35353"
 		serverAddr = "127.29.170.213:5353"
 
@@ -28,7 +29,7 @@ func TestTypeADNSClient(t *testing.T) {
 
 	server, e = dnsservers.NewMockDNSServer(
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
-		clientAddr,
+		clientCIDR,
 		domainName,
 		truncateAfter,
 	)
