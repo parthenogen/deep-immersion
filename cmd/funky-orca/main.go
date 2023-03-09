@@ -39,7 +39,7 @@ func main() {
 
 	log.Debug().
 		Caller().
-		Msg("Deep Immersion initialised. Now running.")
+		Msg("Deep Immersion (Funky Orca) initialised. Now running.")
 
 	driver.Run()
 

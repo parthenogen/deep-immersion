@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net"
+	"time"
 
 	"github.com/parthenogen/deep-immersion/pkg/conductors"
 	"github.com/parthenogen/deep-immersion/pkg/dimm"
@@ -13,6 +14,8 @@ import (
 )
 
 const (
+	minQPSDefault     = 1 << 14
+	maxQPSDefault     = 1 << 16
 	domainDefault     = "example.org."
 	clientAddrDefault = "127.37.98.54:35353"
 	serverAddrDefault = "127.46.140.94:5353"
@@ -31,13 +34,15 @@ func newDriverConfig() (c *driverConfig, e error) {
 		actualBPSLogLabel = "qps"
 		network           = "udp"
 
-		maxQPSFlag    = "max-qps"
-		maxQPSDefault = 1 << 16
-		maxQPSUsage   = "Upper limit to number of queries per second"
+		minQPSFlag  = "min-qps"
+		minQPSUsage = "Lower limit to number of queries per second"
 
-		logIntervalFlag    = "log-interval"
-		logIntervalDefault = 1 << 12
-		logIntervalUsage   = "Some k, such that every k-th event is logged"
+		maxQPSFlag  = "max-qps"
+		maxQPSUsage = "Upper limit to number of queries per second"
+
+		checkIntervalFlag    = "check-interval"
+		checkIntervalDefault = 250 * time.Millisecond
+		checkIntervalUsage   = "Time interval at which limits are enforced"
 
 		domainFlag  = "domain"
 		domainUsage = "Domain for which sub-domains would be generated"
@@ -66,8 +71,9 @@ func newDriverConfig() (c *driverConfig, e error) {
 	)
 
 	var (
+		minQPS         uint
 		maxQPS         uint
-		logInterval    uint
+		checkInterval  time.Duration
 		domain         string
 		nSources       uint
 		nDNSClients    uint
@@ -83,15 +89,21 @@ func newDriverConfig() (c *driverConfig, e error) {
 	)
 
 	flag.UintVar(&maxQPS,
+		minQPSFlag,
+		minQPSDefault,
+		minQPSUsage,
+	)
+
+	flag.UintVar(&maxQPS,
 		maxQPSFlag,
 		maxQPSDefault,
 		maxQPSUsage,
 	)
 
-	flag.UintVar(&logInterval,
-		logIntervalFlag,
-		logIntervalDefault,
-		logIntervalUsage,
+	flag.DurationVar(&checkInterval,
+		checkIntervalFlag,
+		checkIntervalDefault,
+		checkIntervalUsage,
 	)
 
 	flag.StringVar(&domain,
@@ -139,9 +151,10 @@ func newDriverConfig() (c *driverConfig, e error) {
 	flag.Parse()
 
 	c = &driverConfig{
-		conductor: conductors.NewMaxBeatsPerSecConductor(
+		conductor: conductors.NewFixedBPSRangeConductor(
+			minQPS,
 			maxQPS,
-			logInterval,
+			checkInterval,
 			actualBPSLogLabel,
 		),
 		sources:       make([]dimm.Source, nSources),
@@ -168,7 +181,6 @@ func newDriverConfig() (c *driverConfig, e error) {
 		c.dnsClients[i], e = dnsclients.NewTypeADNSClient(
 			clientUDPAddr,
 			serverUDPAddr,
-			logInterval,
 		)
 		if e != nil {
 			return

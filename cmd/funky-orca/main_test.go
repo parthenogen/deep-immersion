@@ -13,8 +13,6 @@ import (
 
 func TestMain(t *testing.T) {
 	const (
-		truncateAfter = 1 << 16
-
 		argument  = "-test.run=TestMain"
 		envFormat = "%s=%s" // https://pkg.go.dev/os/exec#Cmd
 		envKey    = "INCEPTION"
@@ -36,7 +34,7 @@ func TestMain(t *testing.T) {
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddrDefault)),
 		clientAddrDefault,
 		domainDefault,
-		truncateAfter,
+		minQPSDefault,
 	)
 	if e != nil {
 		t.Error(e)
