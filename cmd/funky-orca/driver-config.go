@@ -10,12 +10,12 @@ import (
 	"github.com/parthenogen/deep-immersion/pkg/dnsclients"
 	"github.com/parthenogen/deep-immersion/pkg/errorhandlers"
 	"github.com/parthenogen/deep-immersion/pkg/inspectors"
+	"github.com/parthenogen/deep-immersion/pkg/ipaddresses"
 	"github.com/parthenogen/deep-immersion/pkg/sources"
 )
 
 const (
 	minQPSDefault     = 1 << 14
-	maxQPSDefault     = 1 << 16
 	domainDefault     = "example.org."
 	clientCIDRDefault = "127.0.0.0/8"
 	serverAddrDefault = "127.46.140.94:5353"
@@ -37,8 +37,9 @@ func newDriverConfig() (c *driverConfig, e error) {
 		minQPSFlag  = "min-qps"
 		minQPSUsage = "Lower limit to number of queries per second"
 
-		maxQPSFlag  = "max-qps"
-		maxQPSUsage = "Upper limit to number of queries per second"
+		maxQPSFlag    = "max-qps"
+		maxQPSDefault = 1 << 16
+		maxQPSUsage   = "Upper limit to number of queries per second"
 
 		checkIntervalFlag    = "check-interval"
 		checkIntervalDefault = 250 * time.Millisecond
@@ -55,9 +56,8 @@ func newDriverConfig() (c *driverConfig, e error) {
 		nDNSClientsDefault = 1
 		nDNSClientsUsage   = "Number of concurrent DNS clients to initialise"
 
-		clientAddrFlag    = "client-addr"
-		clientAddrDefault = "127.37.98.54:35353"
-		clientAddrUsage   = "UDP host:port from which queries would be sent"
+		clientCIDRFlag  = "client-cidr"
+		clientCIDRUsage = "CIDR block from which queries would be sent"
 
 		serverAddrFlag  = "server-addr"
 		serverAddrUsage = "UDP host:port to which queries would be sent"
@@ -78,13 +78,14 @@ func newDriverConfig() (c *driverConfig, e error) {
 		domain         string
 		nSources       uint
 		nDNSClients    uint
-		clientAddr     string
+		clientCIDR     string
 		serverAddr     string
 		nInspectors    uint
 		nErrorHandlers uint
 
 		i uint
 
+		clientIPBlock *net.IPNet
 		clientUDPAddr *net.UDPAddr
 		serverUDPAddr *net.UDPAddr
 	)
@@ -125,10 +126,10 @@ func newDriverConfig() (c *driverConfig, e error) {
 		nDNSClientsUsage,
 	)
 
-	flag.StringVar(&clientAddr,
-		clientAddrFlag,
-		clientAddrDefault,
-		clientAddrUsage,
+	flag.StringVar(&clientCIDR,
+		clientCIDRFlag,
+		clientCIDRDefault,
+		clientCIDRUsage,
 	)
 
 	flag.StringVar(&serverAddr,
@@ -168,17 +169,24 @@ func newDriverConfig() (c *driverConfig, e error) {
 		c.sources[i] = sources.NewUUIDSource(domain)
 	}
 
-	clientUDPAddr, e = net.ResolveUDPAddr(network, clientAddr)
-	if e != nil {
-		return
-	}
-
 	serverUDPAddr, e = net.ResolveUDPAddr(network, serverAddr)
 	if e != nil {
 		return
 	}
 
+	_, clientIPBlock, e = net.ParseCIDR(clientCIDR)
+	if e != nil {
+		return
+	}
+
 	for i = 0; i < nDNSClients; i++ {
+		clientUDPAddr = new(net.UDPAddr)
+
+		clientUDPAddr.IP, e = ipaddresses.RandomIPAddr(clientIPBlock)
+		if e != nil {
+			return
+		}
+
 		c.dnsClients[i], e = dnsclients.NewTypeADNSClient(
 			clientUDPAddr,
 			serverUDPAddr,
