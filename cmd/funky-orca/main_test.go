@@ -11,9 +11,12 @@ import (
 	"github.com/parthenogen/deep-immersion/pkg/dnsservers"
 )
 
-func TestMain(t *testing.T) {
+func TestMainNotExpectingError(t *testing.T) {
 	const (
-		argument  = "-test.run=TestMain"
+		serverAddr = "127.51.52.232:5353"
+
+		argument0 = "-test.run=TestMainNotExpectingError"
+		argument1 = "-server-addr=" + serverAddr
 		envFormat = "%s=%s" // https://pkg.go.dev/os/exec#Cmd
 		envKey    = "INCEPTION"
 		envValue  = "1"
@@ -27,11 +30,15 @@ func TestMain(t *testing.T) {
 	)
 
 	if os.Getenv(envKey) == envValue {
+		os.Args = []string{os.Args[0],
+			argument1,
+		}
+
 		main()
 	}
 
 	server, e = dnsservers.NewTruncatingMockDNSServer(
-		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddrDefault)),
+		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
 		clientCIDRDefault,
 		domainDefault,
 		minQPSDefault,
@@ -43,7 +50,63 @@ func TestMain(t *testing.T) {
 	defer server.Stop()
 
 	command = exec.Command(os.Args[0],
-		argument,
+		argument0,
+	)
+
+	command.Stderr = os.Stderr
+
+	command.Env = append(os.Environ(),
+		fmt.Sprintf(envFormat, envKey, envValue),
+	)
+
+	e = command.Run()
+	if e != nil {
+		t.Fail()
+	}
+}
+
+func TestMainExpectingError(t *testing.T) {
+	const (
+		serverAddr = "127.205.99.251:5353"
+
+		argument0 = "-test.run=TestMainExpectingError"
+		argument1 = "-server-addr=" + serverAddr
+		argument2 = "-expect-error=true"
+		argument3 = "-expect-error-delay=3s" // default client timeout is 2s
+		envFormat = "%s=%s"                  // https://pkg.go.dev/os/exec#Cmd
+		envKey    = "INCEPTION"
+		envValue  = "1"
+		exitCode  = 0
+	)
+
+	var (
+		server  interface{ Stop() }
+		command *exec.Cmd
+		e       error
+	)
+
+	if os.Getenv(envKey) == envValue {
+		os.Args = []string{os.Args[0],
+			argument1,
+			argument2,
+			argument3,
+		}
+
+		main()
+	}
+
+	server, e = dnsservers.NewDroppingMockDNSServer(
+		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
+		minQPSDefault,
+	)
+	if e != nil {
+		t.Error(e)
+	}
+
+	defer server.Stop()
+
+	command = exec.Command(os.Args[0],
+		argument0,
 	)
 
 	command.Stderr = os.Stderr

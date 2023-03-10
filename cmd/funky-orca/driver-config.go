@@ -18,7 +18,6 @@ const (
 	minQPSDefault     = 1 << 14
 	domainDefault     = "example.org."
 	clientCIDRDefault = "127.0.0.0/8"
-	serverAddrDefault = "127.46.140.94:5353"
 )
 
 type driverConfig struct {
@@ -59,8 +58,9 @@ func newDriverConfig() (c *driverConfig, e error) {
 		clientCIDRFlag  = "client-cidr"
 		clientCIDRUsage = "CIDR block from which queries would be sent"
 
-		serverAddrFlag  = "server-addr"
-		serverAddrUsage = "UDP host:port to which queries would be sent"
+		serverAddrFlag    = "server-addr"
+		serverAddrDefault = "127.46.140.94:5353"
+		serverAddrUsage   = "UDP host:port to which queries would be sent"
 
 		nInspectorsFlag    = "inspectors"
 		nInspectorsDefault = 1
@@ -69,6 +69,14 @@ func newDriverConfig() (c *driverConfig, e error) {
 		nErrorHandlersFlag    = "error-handlers"
 		nErrorHandlersDefault = 1
 		nErrorHandlersUsage   = "Number of error handlers to initialise"
+
+		expectErrorFlag    = "expect-error"
+		expectErrorDefault = false
+		expectErrorUsage   = "Exit with code 0 upon encountering client error"
+
+		expectErrDelayFlag    = "expect-error-delay"
+		expectErrDelayDefault = 0
+		expectErrDelayUsage   = "Duration after which to expect client error"
 	)
 
 	var (
@@ -82,6 +90,8 @@ func newDriverConfig() (c *driverConfig, e error) {
 		serverAddr     string
 		nInspectors    uint
 		nErrorHandlers uint
+		expectError    bool
+		expectErrDelay time.Duration
 
 		i uint
 
@@ -150,6 +160,18 @@ func newDriverConfig() (c *driverConfig, e error) {
 		nErrorHandlersUsage,
 	)
 
+	flag.BoolVar(&expectError,
+		expectErrorFlag,
+		expectErrorDefault,
+		expectErrorUsage,
+	)
+
+	flag.DurationVar(&expectErrDelay,
+		expectErrDelayFlag,
+		expectErrDelayDefault,
+		expectErrDelayUsage,
+	)
+
 	flag.Parse()
 
 	c = &driverConfig{
@@ -201,7 +223,15 @@ func newDriverConfig() (c *driverConfig, e error) {
 	}
 
 	for i = 0; i < nErrorHandlers; i++ {
-		c.errorHandlers[i] = errorhandlers.NewExitingErrorHandler()
+		switch expectError {
+		case true:
+			c.errorHandlers[i] = errorhandlers.NewExpectingErrorHandler(
+				expectErrDelay,
+			)
+
+		case false:
+			c.errorHandlers[i] = errorhandlers.NewExitingErrorHandler()
+		}
 	}
 
 	return
