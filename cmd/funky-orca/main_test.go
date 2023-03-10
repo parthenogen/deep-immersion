@@ -17,6 +17,7 @@ func TestMainNotExpectingError(t *testing.T) {
 
 		argument0 = "-test.run=TestMainNotExpectingError"
 		argument1 = "-server-addr=" + serverAddr
+		argument2 = "-accept-risk"
 		envFormat = "%s=%s" // https://pkg.go.dev/os/exec#Cmd
 		envKey    = "INCEPTION"
 		envValue  = "1"
@@ -32,6 +33,7 @@ func TestMainNotExpectingError(t *testing.T) {
 	if os.Getenv(envKey) == envValue {
 		os.Args = []string{os.Args[0],
 			argument1,
+			argument2,
 		}
 
 		main()
@@ -71,9 +73,10 @@ func TestMainExpectingError(t *testing.T) {
 
 		argument0 = "-test.run=TestMainExpectingError"
 		argument1 = "-server-addr=" + serverAddr
-		argument2 = "-expect-error=true"
+		argument2 = "-expect-error"
 		argument3 = "-expect-error-delay=3s" // default client timeout is 2s
-		envFormat = "%s=%s"                  // https://pkg.go.dev/os/exec#Cmd
+		argument4 = "-accept-risk"
+		envFormat = "%s=%s" // https://pkg.go.dev/os/exec#Cmd
 		envKey    = "INCEPTION"
 		envValue  = "1"
 		exitCode  = 0
@@ -90,6 +93,7 @@ func TestMainExpectingError(t *testing.T) {
 			argument1,
 			argument2,
 			argument3,
+			argument4,
 		}
 
 		main()

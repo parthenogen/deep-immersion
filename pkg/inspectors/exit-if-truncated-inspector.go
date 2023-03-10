@@ -22,7 +22,6 @@ func (i *exitIfTruncatedInspector) Inspect(response dimm.Response) {
 
 	if response.Truncated() {
 		log.Info().
-			Caller().
 			Msg("Truncated response observed. Exiting with code 0.")
 
 		os.Exit(exitCode)

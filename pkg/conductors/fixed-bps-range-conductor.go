@@ -87,7 +87,6 @@ func (c *fixedBPSRangeConductor) enforce(minBPS uint, interval time.Duration) {
 
 			if bps < minBPS {
 				log.Fatal().
-					Caller().
 					Uint(c.actualBPSLogLabel, bps).
 					Uint("required", minBPS).
 					Msgf("Failed to achieve minimum rate. "+
@@ -99,8 +98,8 @@ func (c *fixedBPSRangeConductor) enforce(minBPS uint, interval time.Duration) {
 			}
 
 			log.Info().
-				Caller().
 				Uint(c.actualBPSLogLabel, bps).
+				Uint("count", c.nBeats).
 				Msg("")
 		}
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net"
 	"time"
 
@@ -77,6 +78,10 @@ func newDriverConfig() (c *driverConfig, e error) {
 		expectErrDelayFlag    = "expect-error-delay"
 		expectErrDelayDefault = 0
 		expectErrDelayUsage   = "Duration after which to expect client error"
+
+		acceptRiskFlag    = "accept-risk"
+		acceptRiskDefault = false
+		acceptRiskUsage   = "Accept the risk of running this software"
 	)
 
 	var (
@@ -92,6 +97,7 @@ func newDriverConfig() (c *driverConfig, e error) {
 		nErrorHandlers uint
 		expectError    bool
 		expectErrDelay time.Duration
+		acceptRisk     bool
 
 		i uint
 
@@ -172,7 +178,19 @@ func newDriverConfig() (c *driverConfig, e error) {
 		expectErrDelayUsage,
 	)
 
+	flag.BoolVar(&acceptRisk,
+		acceptRiskFlag,
+		acceptRiskDefault,
+		acceptRiskUsage,
+	)
+
 	flag.Parse()
+
+	if !acceptRisk {
+		e = fmt.Errorf("Accept risk using command-line flag `-accept-risk`.")
+
+		return
+	}
 
 	c = &driverConfig{
 		conductor: conductors.NewFixedBPSRangeConductor(
@@ -212,6 +230,7 @@ func newDriverConfig() (c *driverConfig, e error) {
 		c.dnsClients[i], e = dnsclients.NewTypeADNSClient(
 			clientUDPAddr,
 			serverUDPAddr,
+			checkInterval,
 		)
 		if e != nil {
 			return

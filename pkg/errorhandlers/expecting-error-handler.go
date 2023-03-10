@@ -29,10 +29,6 @@ func (h *expectingErrorHandler) Handle(e error) {
 }
 
 func (h *expectingErrorHandler) HandleBefDelay(e error) {
-	const (
-		exitCode = 1
-	)
-
 	select {
 	case <-h.timesUp:
 		h.handler = h.HandleAftDelay
@@ -46,11 +42,8 @@ func (h *expectingErrorHandler) HandleBefDelay(e error) {
 	}
 
 	log.Fatal().
-		Caller().
 		Err(e).
 		Msg("Error encountered earlier than expected. Exiting with code 1.")
-
-	os.Exit(exitCode)
 }
 
 func (h *expectingErrorHandler) HandleAftDelay(e error) {
@@ -59,7 +52,6 @@ func (h *expectingErrorHandler) HandleAftDelay(e error) {
 	)
 
 	log.Info().
-		Caller().
 		Err(e).
 		Msg("Error encountered as expected. Exiting with code 0.")
 

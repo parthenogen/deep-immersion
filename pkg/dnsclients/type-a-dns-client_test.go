@@ -3,7 +3,12 @@ package dnsclients
 import (
 	"net"
 	"net/netip"
+	"os"
 	"testing"
+	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	"github.com/parthenogen/deep-immersion/pkg/dimm"
 	"github.com/parthenogen/deep-immersion/pkg/dnsservers"
@@ -17,6 +22,7 @@ func TestTypeADNSClient(t *testing.T) {
 		serverAddr = "127.29.170.213:5353"
 
 		truncateAfter = 0
+		checkInterval = time.Nanosecond
 	)
 
 	var (
@@ -26,6 +32,8 @@ func TestTypeADNSClient(t *testing.T) {
 		response dimm.Response
 		e        error
 	)
+
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
 	server, e = dnsservers.NewTruncatingMockDNSServer(
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
@@ -42,6 +50,7 @@ func TestTypeADNSClient(t *testing.T) {
 	client, e = NewTypeADNSClient(
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(clientAddr)),
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
+		checkInterval,
 	)
 	if e != nil {
 		t.Error(e)
