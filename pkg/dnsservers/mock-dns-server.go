@@ -2,13 +2,6 @@ package dnsservers
 
 import (
 	"net"
-	"strings"
-
-	"golang.org/x/net/dns/dnsmessage"
-)
-
-const (
-	udpMsgSizeUppLim = 1 << 16
 )
 
 type mockDNSServer struct {
@@ -16,16 +9,9 @@ type mockDNSServer struct {
 	incoming chan message
 	outgoing chan message
 	stop     chan struct{}
-
-	expectedClientCIDR *net.IPNet
-	expectedDomainName string
-	truncateAfterQuery uint
 }
 
-func NewMockDNSServer(
-	address *net.UDPAddr, expectedClientCIDR, expectedDomainName string,
-	truncateAfterQuery uint,
-) (
+func newMockDNSServer(address *net.UDPAddr, handler func(message) message) (
 	s *mockDNSServer, e error,
 ) {
 	const (
@@ -33,16 +19,9 @@ func NewMockDNSServer(
 	)
 
 	s = &mockDNSServer{
-		incoming:           make(chan message),
-		outgoing:           make(chan message),
-		stop:               make(chan struct{}),
-		expectedDomainName: expectedDomainName,
-		truncateAfterQuery: truncateAfterQuery,
-	}
-
-	_, s.expectedClientCIDR, e = net.ParseCIDR(expectedClientCIDR)
-	if e != nil {
-		return
+		incoming: make(chan message),
+		outgoing: make(chan message),
+		stop:     make(chan struct{}),
 	}
 
 	s.udpConn, e = net.ListenUDP(network, address)
@@ -52,7 +31,7 @@ func NewMockDNSServer(
 
 	go s.runReader()
 	go s.runWriter()
-	go s.runHandler()
+	go s.runHandler(handler)
 
 	return
 }
@@ -64,6 +43,10 @@ func (s *mockDNSServer) Stop() {
 }
 
 func (s *mockDNSServer) runReader() {
+	const (
+		udpMsgSizeUppLim = 1 << 16
+	)
+
 	var (
 		b = make([]byte, udpMsgSizeUppLim)
 
@@ -120,15 +103,9 @@ func (s *mockDNSServer) runWriter() {
 	}
 }
 
-func (s *mockDNSServer) runHandler() {
+func (s *mockDNSServer) runHandler(handler func(message) message) {
 	var (
 		incoming message
-		outgoing message
-
-		clientAddrOK bool
-		domainNameOK bool
-
-		queriesHandled uint
 	)
 
 	for {
@@ -139,33 +116,7 @@ func (s *mockDNSServer) runHandler() {
 		default:
 			incoming = <-s.incoming
 
-			clientAddrOK = s.expectedClientCIDR.Contains(
-				incoming.client.IP,
-			)
-
-			domainNameOK = strings.HasSuffix(
-				incoming.Questions[0].Name.String(),
-				s.expectedDomainName,
-			)
-
-			if clientAddrOK && domainNameOK {
-				outgoing.Header.ID = incoming.Header.ID
-
-				if queriesHandled >= s.truncateAfterQuery {
-					outgoing.Header.Truncated = true
-				}
-			}
-
-			outgoing.client = incoming.client
-
-			s.outgoing <- outgoing
-
-			queriesHandled += 1
+			s.outgoing <- handler(incoming)
 		}
 	}
-}
-
-type message struct {
-	dnsmessage.Message
-	client *net.UDPAddr
 }

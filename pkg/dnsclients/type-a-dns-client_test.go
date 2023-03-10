@@ -27,7 +27,7 @@ func TestTypeADNSClient(t *testing.T) {
 		e        error
 	)
 
-	server, e = dnsservers.NewMockDNSServer(
+	server, e = dnsservers.NewTruncatingMockDNSServer(
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
 		clientCIDR,
 		domainName,
