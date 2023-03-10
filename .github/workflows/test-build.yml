@@ -51,7 +51,11 @@ jobs:
         run: go mod tidy -x
 
       - name: go build
-        run: go build -o bin/$CMD-${GITHUB_SHA::7}-$GOOS-$GOARCH ./cmd/$CMD
+        run: >
+          go build
+          -ldflags="-X 'main.Commit=${GITHUB_SHA::7}'"
+          -o bin/$CMD-${GITHUB_SHA::7}-$GOOS-$GOARCH
+          ./cmd/$CMD
         env:
           CMD: ${{ matrix.cmd }}
           GOOS: ${{ matrix.go-os }}
