@@ -16,7 +16,6 @@ func TestExitIfTruncatedInspector(t *testing.T) {
 		envFormat = "%s=%s" // https://pkg.go.dev/os/exec#Cmd
 		envKey    = "INCEPTION"
 		envValue  = "1"
-		exitCode  = 0
 	)
 
 	var (
@@ -49,7 +48,7 @@ func TestExitIfTruncatedInspector(t *testing.T) {
 
 	e = command.Run()
 	if e != nil {
-		t.Fail()
+		t.Error(e)
 	}
 }
 
