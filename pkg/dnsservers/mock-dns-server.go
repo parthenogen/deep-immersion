@@ -90,6 +90,10 @@ func (s *mockDNSServer) runWriter() {
 		default:
 			msg = <-s.outgoing
 
+			if msg.client == nil {
+				continue
+			}
+
 			b, e = msg.Pack()
 			if e != nil {
 				panic(e)
