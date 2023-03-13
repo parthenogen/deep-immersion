@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	minQPSDefault     = 1 << 14
+	maxQPSDefault     = 1 << 16
 	domainDefault     = "example.org."
 	clientCIDRDefault = "127.0.0.0/8"
 )
@@ -33,13 +33,14 @@ func newDriverConfig() (c *driverConfig, e error) {
 	const (
 		actualBPSLogLabel = "qps"
 		network           = "udp"
+		failDelay         = 2 * time.Second // DNS client default timeout
 
-		minQPSFlag  = "min-qps"
-		minQPSUsage = "Lower limit to number of queries per second"
+		minQPSFlag    = "min-qps"
+		minQPSDefault = 1 << 12
+		minQPSUsage   = "Lower limit to number of queries per second"
 
-		maxQPSFlag    = "max-qps"
-		maxQPSDefault = 1 << 16
-		maxQPSUsage   = "Upper limit to number of queries per second"
+		maxQPSFlag  = "max-qps"
+		maxQPSUsage = "Upper limit to number of queries per second"
 
 		checkIntervalFlag    = "check-interval"
 		checkIntervalDefault = 250 * time.Millisecond
@@ -106,7 +107,7 @@ func newDriverConfig() (c *driverConfig, e error) {
 		serverUDPAddr *net.UDPAddr
 	)
 
-	flag.UintVar(&maxQPS,
+	flag.UintVar(&minQPS,
 		minQPSFlag,
 		minQPSDefault,
 		minQPSUsage,
@@ -197,6 +198,7 @@ func newDriverConfig() (c *driverConfig, e error) {
 			minQPS,
 			maxQPS,
 			checkInterval,
+			failDelay,
 			actualBPSLogLabel,
 		),
 		sources:       make([]dimm.Source, nSources),

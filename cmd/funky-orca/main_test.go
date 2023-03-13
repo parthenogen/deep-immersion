@@ -43,7 +43,7 @@ func TestMainNotExpectingError(t *testing.T) {
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
 		clientCIDRDefault,
 		domainDefault,
-		minQPSDefault,
+		maxQPSDefault,
 	)
 	if e != nil {
 		t.Error(e)
@@ -101,7 +101,7 @@ func TestMainExpectingError(t *testing.T) {
 
 	server, e = dnsservers.NewDroppingMockDNSServer(
 		net.UDPAddrFromAddrPort(netip.MustParseAddrPort(serverAddr)),
-		minQPSDefault,
+		maxQPSDefault,
 	)
 	if e != nil {
 		t.Error(e)

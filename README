@@ -20,8 +20,8 @@ The library defines the components of such an attack simulator. These are:
   * "DNS clients" for exchanging queries and responses with the DNS server
     under test, for each of those domain names;
   * "Inspectors" for evaluating those responses;
-  * "Error handlers" for handling any errors encountered by those clients;
-  * A "conductor" for controlling the rate and timing of those queries; and
+  * "Error handlers" for handling any errors encountered by those clients; and
+  * A "conductor" for controlling the rate and timing of those queries.
 
 A "driver" facilitates the flow of information between the components and
 coordinates their concurrent execution. Multiple instances of the same type of
