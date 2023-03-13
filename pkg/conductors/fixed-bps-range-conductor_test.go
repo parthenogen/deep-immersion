@@ -11,10 +11,11 @@ import (
 
 func TestFixedBPSRangeConductor(t *testing.T) {
 	const (
-		minBPS      = 1 << 6
-		maxBPS      = 1 << 8
-		logInterval = 100 * time.Millisecond
-		logLabel    = "qps"
+		minBPS        = 1 << 6
+		maxBPS        = 1 << 8
+		checkInterval = 100 * time.Millisecond
+		logLabel      = "qps"
+		failDelay     = 2 * time.Second
 	)
 
 	var (
@@ -25,7 +26,13 @@ func TestFixedBPSRangeConductor(t *testing.T) {
 
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
-	conductor = NewFixedBPSRangeConductor(minBPS, maxBPS, logInterval, logLabel)
+	conductor = NewFixedBPSRangeConductor(
+		minBPS,
+		maxBPS,
+		checkInterval,
+		failDelay,
+		logLabel,
+	)
 
 	go countBeats(
 		&nBeats,

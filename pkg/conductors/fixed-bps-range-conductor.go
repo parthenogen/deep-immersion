@@ -18,7 +18,8 @@ type fixedBPSRangeConductor struct {
 }
 
 func NewFixedBPSRangeConductor(
-	minBPS, maxBPS uint, checkInterval time.Duration, actualBPSLogLabel string,
+	minBPS, maxBPS uint, checkInterval, failDelay time.Duration,
+	actualBPSLogLabel string,
 ) (
 	c *fixedBPSRangeConductor,
 ) {
@@ -35,7 +36,7 @@ func NewFixedBPSRangeConductor(
 
 	go c.run()
 
-	go c.enforce(minBPS, checkInterval)
+	go c.enforce(minBPS, checkInterval, failDelay)
 
 	return
 }
@@ -68,7 +69,9 @@ func (c *fixedBPSRangeConductor) run() {
 	}
 }
 
-func (c *fixedBPSRangeConductor) enforce(minBPS uint, interval time.Duration) {
+func (c *fixedBPSRangeConductor) enforce(
+	minBPS uint, interval, failDelay time.Duration,
+) {
 	const (
 		exitCode = 1
 	)
@@ -86,6 +89,8 @@ func (c *fixedBPSRangeConductor) enforce(minBPS uint, interval time.Duration) {
 			bps = c.measure(interval)
 
 			if bps < minBPS {
+				time.Sleep(failDelay)
+
 				log.Fatal().
 					Uint(c.actualBPSLogLabel, bps).
 					Uint("required", minBPS).
