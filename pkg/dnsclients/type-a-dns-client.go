@@ -55,6 +55,7 @@ func (c *typeADNSClient) Send(query dimm.Query) (r dimm.Response, e error) {
 	select {
 	case <-c.ticker.C:
 		log.Debug().
+			Str("client.addr", c.client.Dialer.LocalAddr.String()).
 			Uint16("query.id", outgoing.MsgHdr.Id).
 			Str("query.name", outgoing.Question[0].Name).
 			Msg("Sampled outgoing DNS query.")
