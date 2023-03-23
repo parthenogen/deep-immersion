@@ -80,9 +80,9 @@ func newDriverConfig() (c *driverConfig, e error) {
 		expectErrDelayDefault = 0
 		expectErrDelayUsage   = "Duration after which to expect client error"
 
-		acceptRiskFlag    = "accept-risk"
-		acceptRiskDefault = false
-		acceptRiskUsage   = "Accept the risk of running this software"
+		acceptRisksFlag    = "accept-risks"
+		acceptRisksDefault = false
+		acceptRisksUsage   = "Assume all risks related to running this software"
 	)
 
 	var (
@@ -98,7 +98,7 @@ func newDriverConfig() (c *driverConfig, e error) {
 		nErrorHandlers uint
 		expectError    bool
 		expectErrDelay time.Duration
-		acceptRisk     bool
+		acceptRisks    bool
 
 		i uint
 
@@ -179,16 +179,18 @@ func newDriverConfig() (c *driverConfig, e error) {
 		expectErrDelayUsage,
 	)
 
-	flag.BoolVar(&acceptRisk,
-		acceptRiskFlag,
-		acceptRiskDefault,
-		acceptRiskUsage,
+	flag.BoolVar(&acceptRisks,
+		acceptRisksFlag,
+		acceptRisksDefault,
+		acceptRisksUsage,
 	)
 
 	flag.Parse()
 
-	if !acceptRisk {
-		e = fmt.Errorf("Accept risk using command-line flag `-accept-risk`.")
+	if !acceptRisks {
+		e = fmt.Errorf("Accept risks using command-line flag `-%s`.",
+			acceptRisksFlag,
+		)
 
 		return
 	}
