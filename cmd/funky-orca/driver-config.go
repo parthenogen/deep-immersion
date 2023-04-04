@@ -33,7 +33,7 @@ func newDriverConfig() (c *driverConfig, e error) {
 	const (
 		actualBPSLogLabel = "qps"
 		network           = "udp"
-		failDelay         = 2 * time.Second // DNS client default timeout
+		failDelay         = 3 * time.Second // DNS client default timeout + 1s
 
 		minQPSFlag    = "min-qps"
 		minQPSDefault = 1 << 12
